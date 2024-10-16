@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import Select from 'react-select';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 //ui
@@ -7,21 +8,20 @@ import { Box, Button, FlexBox, Label, PageTitle } from '../../../ui/index';
 const VehicleSelector = () => {
 	const router = useRouter();
 	const [makes, setMakes] = useState([]);
-	const [selectedMake, setSelectedMake] = useState('');
-	const [selectedYear, setSelectedYear] = useState('');
+	const [selectedMake, setSelectedMake] = useState(null);
+	const [selectedYear, setSelectedYear] = useState(null);
 
 	const currentYear = new Date().getFullYear();
-
 	const years = R.map(R.add(2015), R.range(0, currentYear - 2015 + 1));
 
-	const isNextButtonDisabled = R.or(R.equals(selectedMake,''), R.equals(selectedYear, ''));
+	const isNextButtonDisabled = R.or(R.equals(selectedMake, null), R.equals(selectedYear, null));
 
 	useEffect(() => {
 		const fetchMakes = async () => {
 			try {
 				const response = await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json');
 				const data = await response.json();
-				setMakes(data.Results || []); // Встановлюємо отримані дані в state
+				setMakes(data.Results || []);
 			} catch (error) {
 				console.error('Error fetching vehicle makes:', error);
 			}
@@ -30,12 +30,11 @@ const VehicleSelector = () => {
 		fetchMakes();
 	}, []);
 
-	// Функція обробки кліку для переходу на іншу сторінку
 	const handleNextClick = () => {
-		if (R.not(isNextButtonDisabled)) {
+		if (!isNextButtonDisabled) {
 			router.push({
 				pathname: '/result',
-				query: {make: selectedMake, year: selectedYear}
+				query: { make: selectedMake.value, year: selectedYear.value }
 			});
 		}
 	};
@@ -43,76 +42,67 @@ const VehicleSelector = () => {
 	return (
 		<Box width='100%'>
 			<FlexBox flexDirection='column'>
-				<FlexBox>
 					<Label htmlFor='make'>Select Vehicle</Label>
-					<select
+					<Select
 						id='make'
 						value={selectedMake}
-						onChange={(e) => setSelectedMake(e.target.value)}
-					>
-						<option value=''>--Select Make--</option>
-						{
-							makes.map(({ MakeId, MakeName}) => (
-							<option key={MakeId} value={MakeName}>
-								{`${MakeId} ${MakeName}`}
-							</option>
-						  )
-						)}
-					</select>
-				</FlexBox>
-				<FlexBox mt={2} width='100%'>
-					<Label htmlFor='make'>Make:</Label>
+						onChange={setSelectedMake}
+						options={makes.map(({ MakeId, MakeName }) => ({
+							value: MakeName,
+							label: `${MakeId} ${MakeName}`,
+						}))}
+						placeholder="--Select Make--"
+					/>
+				<FlexBox mt={2} width={{ xs: 300, md: 500 }} justifyContnt='center' alignItems='center'>
 					<Label htmlFor='year'>Model Year:</Label>
-					<select
+					<Select
 						id='year'
 						value={selectedYear}
-						onChange={(e) => setSelectedYear(e.target.value)}
-					>
-						<option value=''>--Select Year--</option>
-						{years.map((year) => (
-							<option key={year} value={year}>
-								{year}
-							</option>
-						))}
-					</select>
+						onChange={setSelectedYear}
+						options={years.map((year) => ({
+							value: year,
+							label: year,
+						}))}
+						placeholder="--Select Year--"
+					/>
 				</FlexBox>
 			</FlexBox>
 			<FlexBox mt={2} width='100%' justifyContent='center' alignItems='center'>
-					<Button
-						mt={3}
-						height={50}
-						borderRadius={28}
-						onClick={handleNextClick}
-						disabled={isNextButtonDisabled}
-						minWidth={{ xs: 250, sm: 500 }}
-						fontSize={{ xs: '14px', lg: '16px' }}
-					>
-							Next
-					</Button>
+				<Button
+					mt={3}
+					height={50}
+					color='black'
+					borderRadius={28}
+					border='1px solid'
+					onClick={handleNextClick}
+					width={{ xs: 250, sm: 500 }}
+					disabled={isNextButtonDisabled}
+					fontSize={{ xs: '14px', lg: '16px' }}
+				>
+					Next
+				</Button>
 			</FlexBox>
 		</Box>
 	);
-}
-
+};
 
 const FilterPage = () => {
-
 	return (
 		<Box>
 			<PageTitle
-				color='red'
+				color='black'
 				fontWeight={600}
 				textAlign='center'
 				mb={{ xs: 24, lg: 32 }}
 				fontSize={{ xs: '40px', lg: '48px' }}
-				>
+			>
 				Filter Page
-		</PageTitle>
+			</PageTitle>
 			<FlexBox>
-        <VehicleSelector />
+				<VehicleSelector />
 			</FlexBox>
 		</Box>
-	)
-}
+	);
+};
 
-export default FilterPage
+export default FilterPage;

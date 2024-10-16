@@ -83,6 +83,8 @@ export const Label = styled.label`
   ${display}
   ${fontSize}
   ${alignItems}
+	
+	margin-right: 10px;
 `;
 
 export const FlexBox = styled(Box)`
@@ -172,14 +174,17 @@ const InstanceButton = styled.button`
   ${borderColor}
   ${borderRadius}
   ${justifyContent}
-
-  cursor: ${({ cursor }) => cursor || 'pointer'};
+	cursor: ${({ cursor }) => cursor || 'pointer'};
 
   transform: ${({ transform }) => transform};
   letter-spacing: ${({ letterSpacing }) => letterSpacing};
   text-transform: ${({ textTransform }) => textTransform};
   text-decoration: ${({ textDecoration }) => textDecoration};
   transition: ${({ transition }) => transition || 'all 0.2s linear'};
+
+  &:hover {
+    background: violet;
+  }
 `;
 
 export const Button = styled(InstanceButton)(buttonStyle);
