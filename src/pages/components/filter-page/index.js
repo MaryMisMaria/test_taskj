@@ -1,9 +1,8 @@
+import * as R from 'ramda';
+import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 //ui
-import {Box, Button, FlexBox, h2Title, PageTitle} from '../../../ui/index';
-import * as R from "ramda";
-import {useRouter} from "next/router";
-
+import { Box, Button, FlexBox, Label, PageTitle } from '../../../ui/index';
 
 const VehicleSelector = () => {
 	const router = useRouter();
@@ -13,7 +12,7 @@ const VehicleSelector = () => {
 
 	const currentYear = new Date().getFullYear();
 
-	const years = Array.from({ length: currentYear - 2014 }, (_, index) => 2015 + index);
+	const years = R.map(R.add(2015), R.range(0, currentYear - 2015 + 1));
 
 	const isNextButtonDisabled = R.or(R.equals(selectedMake,''), R.equals(selectedYear, ''));
 
@@ -28,7 +27,7 @@ const VehicleSelector = () => {
 			}
 		};
 
-		fetchMakes().then(r => {});
+		fetchMakes();
 	}, []);
 
 	// Функція обробки кліку для переходу на іншу сторінку
@@ -43,31 +42,33 @@ const VehicleSelector = () => {
 
 	return (
 		<Box width='100%'>
-			<h2Title>Select Vehicle</h2Title>
-			<FlexBox width='100%' flexDirection='column'>
-				<FlexBox width='100%'>
+			<FlexBox flexDirection='column'>
+				<FlexBox>
+					<Label htmlFor='make'>Select Vehicle</Label>
 					<select
 						id='make'
 						value={selectedMake}
 						onChange={(e) => setSelectedMake(e.target.value)}
 					>
 						<option value=''>--Select Make--</option>
-						{makes.map(({ MakeId, MakeName}) => (
+						{
+							makes.map(({ MakeId, MakeName}) => (
 							<option key={MakeId} value={MakeName}>
 								{`${MakeId} ${MakeName}`}
 							</option>
-						))}
+						  )
+						)}
 					</select>
 				</FlexBox>
-				<FlexBox width='100%'>
-					<label htmlFor="make">Make:</label>
-					<label htmlFor="year">Model Year:</label>
+				<FlexBox mt={2} width='100%'>
+					<Label htmlFor='make'>Make:</Label>
+					<Label htmlFor='year'>Model Year:</Label>
 					<select
-						id="year"
+						id='year'
 						value={selectedYear}
 						onChange={(e) => setSelectedYear(e.target.value)}
 					>
-						<option value="">--Select Year--</option>
+						<option value=''>--Select Year--</option>
 						{years.map((year) => (
 							<option key={year} value={year}>
 								{year}
@@ -76,14 +77,14 @@ const VehicleSelector = () => {
 					</select>
 				</FlexBox>
 			</FlexBox>
-			<FlexBox width='100%' justifyContent='center' alignItems='center'>
+			<FlexBox mt={2} width='100%' justifyContent='center' alignItems='center'>
 					<Button
 						mt={3}
 						height={50}
 						borderRadius={28}
+						onClick={handleNextClick}
 						disabled={isNextButtonDisabled}
 						minWidth={{ xs: 250, sm: 500 }}
-						onClick={handleNextClick}
 						fontSize={{ xs: '14px', lg: '16px' }}
 					>
 							Next
@@ -92,6 +93,7 @@ const VehicleSelector = () => {
 		</Box>
 	);
 }
+
 
 const FilterPage = () => {
 

@@ -1,12 +1,15 @@
+// ui
+import { Box, PageTitle} from '../ui';
+
 const ResultPage = ({ make, year }) => {
 	return (
-		<div>
-			<h1>Choose Car - {make} - {year}</h1>
-		</div>
+		<Box>
+			<PageTitle>Result for search car - {make} {year}</PageTitle>
+		</Box>
 	);
 };
 
-export async function generateStaticParams(context) {
+export async function getServerSideProps(context) {
 	const { make, year } = context.query;
 	return {
 		props: { make, year },
